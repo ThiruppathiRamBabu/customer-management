@@ -1,0 +1,124 @@
+<button class="btn btn-primary d-md-none m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+  aria-controls="sidebar">
+  ☰ Menu
+</button>
+
+<div class="d-flex vh-100">
+  <div class="offcanvas-md offcanvas-start p-3" tabindex="-1" id="sidebar">
+    <h5 class="offcanvas-title pb-4">Customer Type</h5>
+    <div class="offcanvas-header d-md-none">
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body flex-column p-0">
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="showAll" id="showAll" value="all"
+          [(ngModel)]="selectedCustomerType">
+        <label class="form-check-label" for="showAll">
+          Show All
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="premium" id="premium" value="premium"
+          [(ngModel)]="selectedCustomerType">
+        <label class="form-check-label" for="premium">
+          Premium
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="standrad" id="standrad" value="standrad"
+          [(ngModel)]="selectedCustomerType">
+        <label class="form-check-label" for="standrad">
+          Standrad
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-grow-1 p-4">
+    <div class="input-group mb-4">
+      <input class="form-control me-2" type="search" placeholder="Search Customers..." aria-label="Search" />
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Customer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="customerFrom" autocomplete="off">
+          <div class="mb-3">
+            <label for="title" class="form-label">Title <span style="color: red;">*</span></label>
+            <select id="title" formControlName="title" class="form-select">
+              <option value="mr">Mr</option>
+              <option value="mrs">Mrs</option>
+              <option value="dr">Dr</option>
+            </select>
+            @if (customerFrom.get('title')?.invalid && customerFrom.get('title')?.touched) {
+            <div>
+              <small style="color: red;">Select the title</small>
+            </div>
+            }
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for="firstName" class="form-label">First Name <span style="color: red;">*</span></label>
+              <input type="text" id="firstName" formControlName="firstName" class="form-control" />
+              @if (customerFrom.get('firstName')?.invalid && customerFrom.get('firstName')?.touched) {
+              <div>
+                <small style="color: red;">Enter first name</small>
+              </div>
+              }
+            </div>
+            <div class="col">
+              <label for="lastName" class="form-label">Last Name <span style="color: red;">*</span></label>
+              <input type="text" id="lastName" formControlName="lastName" class="form-control" />
+              @if (customerFrom.get('lastName')?.invalid && customerFrom.get('lastName')?.touched) {
+              <div>
+                <small style="color: red;">Enter last name</small>
+              </div>
+              }
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email <span style="color: red;">*</span></label>
+            <input type="email" id="email" formControlName="email" class="form-control" type="email" />
+            @if (customerFrom.get('email')?.invalid && customerFrom.get('email')?.touched) {
+            <div>
+              <small style="color: red;">Enter your email</small>
+            </div>
+            }
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone <span style="color: red;">*</span></label>
+            <input type="tel" id="phone" formControlName="phone" class="form-control" type="number" />
+            @if (customerFrom.get('phone')?.invalid && customerFrom.get('phone')?.touched) {
+            <div>
+              <small style="color: red;">Enter last name</small>
+            </div>
+            }
+          </div>
+          <div class="mb-3">
+            <label for="customerType" class="form-label">Customer Type <span style="color: red;">*</span></label>
+            <select id="customerType" formControlName="customerType" class="form-select">
+              <option value="all">All</option>
+              <option value="premium">Premium</option>
+              <option value="standard">Standard</option>
+            </select>
+            @if (customerFrom.get('customerType')?.invalid && customerFrom.get('customerType')?.touched) {
+            <div>
+              <small style="color: red;">Enter customer type</small>
+            </div>
+            }
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" [disabled]="customerFrom.invalid" (onclick)="onSubmit()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
