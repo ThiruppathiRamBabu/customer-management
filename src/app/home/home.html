@@ -12,37 +12,45 @@
     <div class="offcanvas-body flex-column p-0">
       <div class="form-check">
         <input class="form-check-input" type="radio" name="showAll" id="showAll" value="all"
-          [(ngModel)]="selectedCustomerType">
+          [(ngModel)]="selectedCustomerType" (change)="applyFilters()">
         <label class="form-check-label" for="showAll">
           Show All
         </label>
       </div>
       <div class="form-check">
         <input class="form-check-input" type="radio" name="premium" id="premium" value="premium"
-          [(ngModel)]="selectedCustomerType">
+          [(ngModel)]="selectedCustomerType" (change)="applyFilters()">
         <label class="form-check-label" for="premium">
           Premium
         </label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="standrad" id="standrad" value="standrad"
-          [(ngModel)]="selectedCustomerType">
-        <label class="form-check-label" for="standrad">
-          Standrad
+        <input class="form-check-input" type="radio" name="standard" id="standard" value="standard"
+          [(ngModel)]="selectedCustomerType" (change)="applyFilters()">
+        <label class="form-check-label" for="standard">
+          Standard
         </label>
       </div>
     </div>
   </div>
 
-  <div class="flex-grow-1 p-4">
+  <div class="flex-grow-1 flex-row p-4">
     <div class="input-group mb-4">
-      <input class="form-control me-2" type="search" placeholder="Search Customers..." aria-label="Search" />
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Customer</button>
+      <input class="form-control me-2" type="search" placeholder="Search Customers..." aria-label="Search"  [(ngModel)]="searchText" (input)="applyFilters()"/>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fromModal">Add Customer</button>
     </div>
+    <div class="mb-3 sort">
+      <label for="sort" class="form-label">Sort By</label>
+            <select id="sort" class="form-select" [(ngModel)]="sortOrder" (change)="applyFilters()">
+              <option value="asc">A-Z</option>
+              <option value="desc">Z-A</option>
+            </select>
+    </div>
+    <app-customer-widget [customers]="filteredCustomers"></app-customer-widget>
   </div>
 </div>
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="fromModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -104,7 +112,6 @@
           <div class="mb-3">
             <label for="customerType" class="form-label">Customer Type <span style="color: red;">*</span></label>
             <select id="customerType" formControlName="customerType" class="form-select">
-              <option value="all">All</option>
               <option value="premium">Premium</option>
               <option value="standard">Standard</option>
             </select>
@@ -117,7 +124,18 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" [disabled]="customerFrom.invalid" (onclick)="onSubmit()">Save</button>
+        <button type="submit" class="btn btn-primary" [disabled]="customerFrom.invalid" (click)="onSubmit()"
+          data-bs-dismiss="modal" aria-label="Close">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+  <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" id="successToast">
+    <div class="d-flex">
+      <div class="toast-body">
+        Successfully added!
       </div>
     </div>
   </div>

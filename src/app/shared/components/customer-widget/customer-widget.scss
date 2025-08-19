@@ -1,0 +1,23 @@
+.card {
+
+    .avatar {
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        button {
+            border-radius: 50%;
+            height: 70px;
+            width: 70px;
+            background: #6e9adb;
+        }
+
+    }
+    
+    .card-footer {
+        display: flex;
+        justify-content: space-around;
+
+    }
+}

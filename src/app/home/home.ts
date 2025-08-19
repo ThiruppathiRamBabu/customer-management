@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CustomerWidget } from '../shared/components/customer-widget/customer-widget';
+
+
+declare var bootstrap: any;
 
 export interface Customer {
   title: string;
@@ -14,7 +18,7 @@ export interface Customer {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CustomerWidget],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -25,8 +29,8 @@ export class Home {
   selectedCustomerType = 'all';
   filteredCustomers: Customer[] = [];
   searchQuery = new FormControl('');
-  isEdit = false;
-  selectedUserId: any;
+  searchText: string = '';
+  sortOrder: string = 'asc';
 
   constructor() {
     this.customerFrom = new FormGroup({
@@ -35,63 +39,78 @@ export class Home {
       lastName: new FormControl(null, [Validators.required]),
       email: new FormControl(null, [Validators.required, Validators.email]),
       phone: new FormControl(null, [Validators.required, Validators.pattern(/^\d{10}$/)]),
-      customerType: new FormControl('all')
+      customerType: new FormControl('premium')
     });
 
-    const users = localStorage.getItem('customers');
-    if (users) {
-      this.customers = JSON.parse(users);
+    const customer = localStorage.getItem('customers');
+    if (customer) {
+      this.customers = JSON.parse(customer);
+      this.customers.sort((a: any, b: any) => {
+        return a.firstName.toLowerCase().localeCompare(b.firstName.toLowerCase())
+      });
       this.filteredCustomers = this.customers;
     }
     console.log('//', this.customers, this.filteredCustomers);
   }
 
-    onSubmit() {
-    if (this.isEdit) {
-      this.customers.forEach((u: any) => {
-        if (u.id === this.selectedUserId) {
-          u.name = this.customerFrom.value.name ?? '';
-          u.email = this.customerFrom.value.email ?? '';
-          u.mobile = this.customerFrom.value.mobile ?? 0;
-        }
-      })
-      localStorage.setItem('customers', JSON.stringify(this.customers));
-      this.isEdit = false;
-    } else {
-      console.log(this.customerFrom.value);
-      const customer: Customer = {
-        title: this.customerFrom.value.title,
-        firstName: this.customerFrom.value.firstName ?? '',
-        lastName: this.customerFrom.value.lastName ?? '',
-        email: this.customerFrom.value.email ?? '',
-        phone: this.customerFrom.value.mobile ?? 0,
-        customerType: this.customerFrom.value.customerType,
-        id: this.customers.length ? Math.max(0, ...this.customers.map((u: any) => u.id)) + 1 : 0
-      };
-      this.customers.push(customer)
-      console.log('customers', this.customers);
-      localStorage.setItem('customers', JSON.stringify(this.customers));
-    }
+  onSubmit() {
+    console.log(this.customerFrom.value);
+    const customer: Customer = {
+      title: this.customerFrom.value.title,
+      firstName: this.customerFrom.value.firstName ?? '',
+      lastName: this.customerFrom.value.lastName ?? '',
+      email: this.customerFrom.value.email ?? '',
+      phone: this.customerFrom.value.phone,
+      customerType: this.customerFrom.value.customerType,
+      id: this.customers.length ? Math.max(0, ...this.customers.map((u: any) => u.id)) + 1 : 0
+    };
+    console.log('customers', this.customers);
+    const allCustomers: any = localStorage.getItem('customers');
+    const customers = allCustomers ? JSON.parse(allCustomers) : []
+    customers.push(customer);
+    localStorage.setItem('customers', JSON.stringify(customers));
+    this.customers = customers;
     this.filteredCustomers = this.customers;
     this.customerFrom.reset();
-  }
-
-  onEdit(user: any) {
-    this.isEdit = true;
-    this.selectedUserId = user.id;
-    if (user) {
-      this.customerFrom.patchValue({
-        name: user.name,
-        email: user.email,
-        mobile: user.mobile
-      })
+    const toastEl = document.getElementById('successToast');
+    if (toastEl) {
+      const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+      toast.show();
     }
+    this.customerFrom.patchValue({
+      title: new FormControl('mr', [Validators.required]),
+      customerType: new FormControl('premium')
+    })
   }
 
-  onDelete(user: any) {
-    this.customers = this.customers.filter((u: any) => u.id != user.id);
-    this.filteredCustomers = this.customers;
-    localStorage.setItem('customers', JSON.stringify(this.customers));
+  applyFilters() {
+    const customer = localStorage.getItem('customers');
+    if (customer) {
+      let data = JSON.parse(customer);
+
+      if (this.selectedCustomerType !== 'all') {
+        data = data.filter((c: any) => c.customerType === this.selectedCustomerType);
+      }
+
+      if (this.searchText.trim()) {
+        const searchLower = this.searchText.toLowerCase();
+        data = data.filter((c: any) =>
+          c.firstName.toLowerCase().includes(searchLower) ||
+          c.lastName.toLowerCase().includes(searchLower) ||
+          c.email.toLowerCase().includes(searchLower)
+        );
+      }
+
+      data.sort((a: any, b: any) => {
+        const nameA = a.firstName.toLowerCase();
+        const nameB = b.firstName.toLowerCase();
+        return this.sortOrder === 'asc'
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      });
+
+      this.filteredCustomers = data;
+    }
   }
 
 }
